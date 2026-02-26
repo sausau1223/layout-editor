@@ -39,7 +39,7 @@ const PropertyPanel: React.FC = () => {
         );
     }
 
-    const isText = activeObject.type === 'i-text' || activeObject.type === 'text';
+    const isText = activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox';
     const isImage = activeObject.type === 'image';
 
     const updateProp = (key: string, value: any) => {
