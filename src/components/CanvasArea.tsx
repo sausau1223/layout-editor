@@ -30,6 +30,27 @@ const CanvasArea: React.FC = () => {
             saveToLocal(initCanvas);
         });
 
+        // Global scaling interceptor to handle Word-style textbox resizing
+        initCanvas.on('object:scaling', (e: any) => {
+            const obj = e.target;
+            if (obj && (obj.type === 'textbox' || obj.type === 'i-text')) {
+                const scaleX = obj.scaleX || 1;
+                const scaleY = obj.scaleY || 1;
+
+                const newWidth = (obj.width || 200) * scaleX;
+                const newHeight = (obj.height || 50) * scaleY;
+
+                // Stop text from scaling visually by locking scale values
+                // and assign the scaled height as minimumHeight for our custom patch
+                obj.set({
+                    width: newWidth,
+                    minimumHeight: newHeight,
+                    scaleX: 1,
+                    scaleY: 1
+                });
+            }
+        });
+
         // Removed ineffective object:added event
 
         initCanvas.on('mouse:down', (options) => {
@@ -143,7 +164,7 @@ const CanvasArea: React.FC = () => {
                 }
             } else {
                 // Completely blank new project
-                const json = (initCanvas as any).toJSON(['id']);
+                const json = (initCanvas as any).toJSON(['id', 'minimumHeight']);
                 const newPages = [JSON.stringify(json)];
                 useStore.getState().setPages(newPages);
                 useStore.getState().saveHistory(newPages, 0);
@@ -211,7 +232,7 @@ const CanvasArea: React.FC = () => {
         if (state.isHistoryRestoring) return; // Prevent history loop
 
         try {
-            const json = canvas.toJSON(['id']);
+            const json = canvas.toJSON(['id', 'minimumHeight']);
             const stateString = JSON.stringify(json);
 
             const newPages = [...state.pages];

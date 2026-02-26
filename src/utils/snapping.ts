@@ -1,5 +1,19 @@
 import * as fabric from 'fabric';
 
+// Global Patch for Fabric.js Textbox to support manual height resizing (MS Word style)
+const originalCalcTextHeight = (fabric.Textbox.prototype as any).calcTextHeight;
+if (originalCalcTextHeight) {
+    (fabric.Textbox.prototype as any).calcTextHeight = function () {
+        const textHeight = originalCalcTextHeight.call(this);
+        // If the user has manually dragged the box to be larger than the text height,
+        // we honor that custom minimumHeight so the box doesn't shrink back automatically.
+        if (this.minimumHeight && textHeight < this.minimumHeight) {
+            return this.minimumHeight;
+        }
+        return textHeight;
+    };
+}
+
 const snappingDistance = 10;
 
 export const initAligningGuidelines = (canvas: fabric.Canvas) => {
@@ -162,27 +176,19 @@ export const applyTextboxRules = (canvas: fabric.Canvas) => {
     if (!canvas) return;
     canvas.getObjects().forEach((obj: any) => {
         if (obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text') {
-            // Enable corner controls to mimic typical Word/Figma layout box controls
+            // Enable all controls to mimic typical Word layout box controls
             obj.setControlsVisibility({
                 tl: true,
                 tr: true,
                 bl: true,
                 br: true,
-                mt: false, // height is auto-calculated based on text wrapping
-                mb: false,
+                mt: true,
+                mb: true,
                 ml: true,
                 mr: true
             });
-
-            // Map corner controls to alter WIDTH instead of scaling the text
-            if (obj.controls && obj.controls.mr && obj.controls.mr.actionHandler) {
-                const changeWidthHandler = obj.controls.mr.actionHandler;
-
-                if (obj.controls.tl) obj.controls.tl.actionHandler = changeWidthHandler;
-                if (obj.controls.tr) obj.controls.tr.actionHandler = changeWidthHandler;
-                if (obj.controls.bl) obj.controls.bl.actionHandler = changeWidthHandler;
-                if (obj.controls.br) obj.controls.br.actionHandler = changeWidthHandler;
-            }
+            // We do not override actionHandlers here. We will intercept the resulting 'scaling' event
+            // at the canvas level to convert scaleX/scaleY into width/height adjustments.
         }
     });
 };
