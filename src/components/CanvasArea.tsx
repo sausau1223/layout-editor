@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as fabric from 'fabric';
 import localforage from 'localforage';
 import { useStore } from '../store/useStore';
-import { initAligningGuidelines } from '../utils/snapping';
+import { initAligningGuidelines, applyTextboxRules } from '../utils/snapping';
 
 const CanvasArea: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -30,22 +30,7 @@ const CanvasArea: React.FC = () => {
             saveToLocal(initCanvas);
         });
 
-        // Auto-configure Textbox controls globally for new and loaded objects
-        initCanvas.on('object:added', (e: any) => {
-            const obj = e.target;
-            if (obj && obj.type === 'textbox') {
-                // For textboxes, disable corner scaling to prevent font resizing.
-                // Only allow middle-left (ml) and middle-right (mr) to change the width natively.
-                obj.setControlsVisibility({
-                    tl: false,
-                    tr: false,
-                    bl: false,
-                    br: false,
-                    mt: false,
-                    mb: false
-                });
-            }
-        });
+        // Removed ineffective object:added event
 
         initCanvas.on('mouse:down', (options) => {
             const currentMode = useStore.getState().toolMode;
@@ -64,6 +49,7 @@ const CanvasArea: React.FC = () => {
                 } as any);
 
                 initCanvas.add(text);
+                applyTextboxRules(initCanvas);
                 initCanvas.setActiveObject(text);
                 initCanvas.requestRenderAll();
                 saveToLocal(initCanvas);
@@ -128,6 +114,7 @@ const CanvasArea: React.FC = () => {
                     const activePageStr = stateObj.pages[stateObj.currentPageIndex || 0];
                     if (activePageStr) {
                         await initCanvas.loadFromJSON(activePageStr);
+                        applyTextboxRules(initCanvas);
                     }
                     initCanvas.requestRenderAll();
                     store.setHistoryRestoring(false);
@@ -146,6 +133,7 @@ const CanvasArea: React.FC = () => {
                     store.setCurrentPageIndex(0);
 
                     await initCanvas.loadFromJSON(savedV1);
+                    applyTextboxRules(initCanvas);
                     initCanvas.requestRenderAll();
                     store.setHistoryRestoring(false);
                     store.saveHistory(newPages, 0);

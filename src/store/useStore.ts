@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import localforage from 'localforage';
+import { applyTextboxRules } from '../utils/snapping';
 
 export type ToolMode = 'select' | 'text' | 'image';
 
@@ -90,6 +91,7 @@ export const useStore = create<EditorState>((set, get) => ({
         if (canvas && state && state !== '') {
             setHistoryRestoring(true);
             canvas.loadFromJSON(state).then(() => {
+                applyTextboxRules(canvas);
                 canvas.requestRenderAll();
                 setHistoryRestoring(false);
             }).catch((err: any) => {
@@ -111,6 +113,7 @@ export const useStore = create<EditorState>((set, get) => ({
         if (canvas && state && state !== '') {
             setHistoryRestoring(true);
             canvas.loadFromJSON(state).then(() => {
+                applyTextboxRules(canvas);
                 canvas.requestRenderAll();
                 setHistoryRestoring(false);
             }).catch((err: any) => {
@@ -163,6 +166,7 @@ export const useStore = create<EditorState>((set, get) => ({
                 setHistoryRestoring(true);
                 try {
                     await canvas.loadFromJSON(stateStr);
+                    applyTextboxRules(canvas);
                     canvas.requestRenderAll();
                     localforage.setItem('layout_editor_state_v2', stateObj).catch(console.error);
                 } catch (err) {
@@ -194,6 +198,7 @@ export const useStore = create<EditorState>((set, get) => ({
                 setHistoryRestoring(true);
                 try {
                     await canvas.loadFromJSON(stateStr);
+                    applyTextboxRules(canvas);
                     canvas.requestRenderAll();
                     localforage.setItem('layout_editor_state_v2', stateObj).catch(console.error);
                 } catch (err) {

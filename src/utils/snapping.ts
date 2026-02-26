@@ -157,3 +157,19 @@ export const initAligningGuidelines = (canvas: fabric.Canvas) => {
         canvas.requestRenderAll();
     });
 };
+
+export const applyTextboxRules = (canvas: fabric.Canvas) => {
+    if (!canvas) return;
+    canvas.getObjects().forEach((obj: any) => {
+        if (obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text') {
+            obj.setControlsVisibility({
+                tl: false,
+                tr: false,
+                bl: false,
+                br: false,
+                mt: false,
+                mb: false
+            });
+        }
+    });
+};
