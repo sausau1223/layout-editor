@@ -30,17 +30,19 @@ const CanvasArea: React.FC = () => {
             saveToLocal(initCanvas);
         });
 
-        // Global scaling interceptor for Textboxes
-        initCanvas.on('object:scaling', (e: any) => {
+        // Auto-configure Textbox controls globally for new and loaded objects
+        initCanvas.on('object:added', (e: any) => {
             const obj = e.target;
-            if (obj && (obj.type === 'textbox' || obj.type === 'i-text')) {
-                const scaleX = obj.scaleX || 1;
-                const newWidth = (obj.width || 200) * scaleX;
-
-                obj.set({
-                    width: newWidth,
-                    scaleX: 1,
-                    scaleY: 1
+            if (obj && obj.type === 'textbox') {
+                // For textboxes, disable corner scaling to prevent font resizing.
+                // Only allow middle-left (ml) and middle-right (mr) to change the width natively.
+                obj.setControlsVisibility({
+                    tl: false,
+                    tr: false,
+                    bl: false,
+                    br: false,
+                    mt: false,
+                    mb: false
                 });
             }
         });
@@ -60,12 +62,6 @@ const CanvasArea: React.FC = () => {
                     // splitByGrapheme is natively supported by Textbox for CJK
                     id: crypto.randomUUID()
                 } as any);
-
-                // Disable vertical stretching controls so users intuitively only resize width
-                text.setControlsVisibility({
-                    mt: false, // middle top
-                    mb: false, // middle bottom
-                });
 
                 initCanvas.add(text);
                 initCanvas.setActiveObject(text);
