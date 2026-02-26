@@ -47,9 +47,13 @@ const PropertyPanel: React.FC = () => {
 
         // Handle inline text styling if currently editing and text is selected
         const objAsText = activeObject as any;
+
+        // During a click on the property panel, isEditing might briefly become false,
+        // so we check if there's a valid selection range instead of strictly checking isEditing.
         if (
             (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
-            objAsText.isEditing &&
+            objAsText.selectionStart !== undefined &&
+            objAsText.selectionEnd !== undefined &&
             objAsText.selectionStart !== objAsText.selectionEnd
         ) {
             // Apply style only to the selected portion
@@ -224,6 +228,12 @@ const PropertyPanel: React.FC = () => {
                 padding: 16,
                 borderLeft: '1px solid var(--panel-border)',
                 overflowY: 'auto'
+            }}
+            onMouseDown={e => {
+                // Prevent canvas text editor from losing focus when clicking buttons on the panel
+                if ((e.target as HTMLElement).tagName !== 'INPUT' && (e.target as HTMLElement).tagName !== 'SELECT') {
+                    e.preventDefault();
+                }
             }}
         >
             <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, borderBottom: '1px solid var(--panel-border)', paddingBottom: 8 }}>
