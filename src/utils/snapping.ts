@@ -162,14 +162,27 @@ export const applyTextboxRules = (canvas: fabric.Canvas) => {
     if (!canvas) return;
     canvas.getObjects().forEach((obj: any) => {
         if (obj.type === 'textbox' || obj.type === 'i-text' || obj.type === 'text') {
+            // Enable corner controls to mimic typical Word/Figma layout box controls
             obj.setControlsVisibility({
-                tl: false,
-                tr: false,
-                bl: false,
-                br: false,
-                mt: false,
-                mb: false
+                tl: true,
+                tr: true,
+                bl: true,
+                br: true,
+                mt: false, // height is auto-calculated based on text wrapping
+                mb: false,
+                ml: true,
+                mr: true
             });
+
+            // Map corner controls to alter WIDTH instead of scaling the text
+            if (obj.controls && obj.controls.mr && obj.controls.mr.actionHandler) {
+                const changeWidthHandler = obj.controls.mr.actionHandler;
+
+                if (obj.controls.tl) obj.controls.tl.actionHandler = changeWidthHandler;
+                if (obj.controls.tr) obj.controls.tr.actionHandler = changeWidthHandler;
+                if (obj.controls.bl) obj.controls.bl.actionHandler = changeWidthHandler;
+                if (obj.controls.br) obj.controls.br.actionHandler = changeWidthHandler;
+            }
         }
     });
 };

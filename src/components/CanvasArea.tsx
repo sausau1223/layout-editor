@@ -36,7 +36,7 @@ const CanvasArea: React.FC = () => {
             const currentMode = useStore.getState().toolMode;
             if (currentMode === 'text' && !options.target) {
                 const pointer = initCanvas.getScenePoint(options.e);
-                const text = new fabric.Textbox('New Text\n換行\n縮排\n段落', {
+                const text = new fabric.Textbox('New Text', {
                     left: pointer.x,
                     top: pointer.y,
                     width: 200, // Initial width to allow auto-wrapping when user types long texts
