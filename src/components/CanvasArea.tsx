@@ -30,19 +30,42 @@ const CanvasArea: React.FC = () => {
             saveToLocal(initCanvas);
         });
 
+        // Global scaling interceptor for Textboxes
+        initCanvas.on('object:scaling', (e: any) => {
+            const obj = e.target;
+            if (obj && (obj.type === 'textbox' || obj.type === 'i-text')) {
+                const scaleX = obj.scaleX || 1;
+                const newWidth = (obj.width || 200) * scaleX;
+
+                obj.set({
+                    width: newWidth,
+                    scaleX: 1,
+                    scaleY: 1
+                });
+            }
+        });
+
         initCanvas.on('mouse:down', (options) => {
             const currentMode = useStore.getState().toolMode;
             if (currentMode === 'text' && !options.target) {
                 const pointer = initCanvas.getScenePoint(options.e);
-                const text = new fabric.IText('New Text', {
+                const text = new fabric.Textbox('New Text\n換行\n縮排\n段落', {
                     left: pointer.x,
                     top: pointer.y,
+                    width: 200, // Initial width to allow auto-wrapping when user types long texts
                     fontFamily: 'Inter',
                     fontSize: 24,
                     fill: '#000000',
                     editable: true,
+                    // splitByGrapheme is natively supported by Textbox for CJK
                     id: crypto.randomUUID()
                 } as any);
+
+                // Disable vertical stretching controls so users intuitively only resize width
+                text.setControlsVisibility({
+                    mt: false, // middle top
+                    mb: false, // middle bottom
+                });
 
                 initCanvas.add(text);
                 initCanvas.setActiveObject(text);
