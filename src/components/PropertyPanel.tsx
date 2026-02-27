@@ -7,6 +7,14 @@ const PropertyPanel: React.FC = () => {
     const { activeObject, canvas, setActiveObject } = useStore();
     const [, setUpdater] = useState(0);
 
+    // -- HOOKS MUST BE CALLED BEFORE ANY RETURNS --
+    const lastSelectionRef = useRef<{ start: number, end: number } | null>(null);
+
+    // Reset selection memory when changing objects to prevent out-of-bounds crash on new or shorter objects
+    useEffect(() => {
+        lastSelectionRef.current = null;
+    }, [activeObject]);
+
     // Force re-render when object properties change
     useEffect(() => {
         if (canvas) {
@@ -39,6 +47,7 @@ const PropertyPanel: React.FC = () => {
         }
     }, [canvas, activeObject]);
 
+    // -- EARLY RETURN --
     if (!activeObject) {
         return (
             <div className="glass-panel" style={{ width: 280, padding: 16, borderLeft: '1px solid var(--panel-border)' }}>
@@ -51,13 +60,6 @@ const PropertyPanel: React.FC = () => {
 
     const isText = activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox';
     const isImage = activeObject.type === 'image';
-
-    const lastSelectionRef = useRef<{ start: number, end: number } | null>(null);
-
-    // Reset selection memory when changing objects to prevent out-of-bounds crash on new or shorter objects
-    useEffect(() => {
-        lastSelectionRef.current = null;
-    }, [activeObject]);
 
     const updateProp = (key: string, value: any) => {
         if (!canvas || !activeObject) return;
