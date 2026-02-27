@@ -90,7 +90,7 @@ const Toolbar: React.FC = () => {
             }}
         >
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <h2 style={{ marginRight: 24, fontSize: 18, fontWeight: 600 }}>Layout Editor<span style={{ color: 'var(--accent-color)', fontSize: 12, marginLeft: 8 }}>v1.0</span></h2>
+                <h2 style={{ marginRight: 24, fontSize: 18, fontWeight: 600 }}>Steven Layout Editor<span style={{ color: 'var(--accent-color)', fontSize: 12, marginLeft: 8 }}>v1.0</span></h2>
 
                 <button
                     title="Undo"
