@@ -61,6 +61,11 @@ const PropertyPanel: React.FC = () => {
     const isText = activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox';
     const isImage = activeObject.type === 'image';
 
+    const debugUpdateProp = (key: string, value: any, eventName: string) => {
+        console.log(`[ColorPicker Debug] ${eventName} triggered for ${key}: ${value}`);
+        updateProp(key, value);
+    };
+
     const updateProp = (key: string, value: any) => {
         if (!canvas || !activeObject) return;
 
@@ -95,10 +100,11 @@ const PropertyPanel: React.FC = () => {
 
             objAsText.setSelectionStyles({ [key]: value });
 
-            // Restore actual selection state to avoid corrupting internal behavior
             objAsText.selectionStart = origStart;
             objAsText.selectionEnd = origEnd;
 
+            // Force Fabric to clear its text layout cache
+            activeObject.set('dirty', true);
             activeObject.setCoords();
             canvas.requestRenderAll();
             canvas.fire('object:modified', { target: activeObject });
@@ -504,8 +510,8 @@ const PropertyPanel: React.FC = () => {
                                 <input
                                     type="color"
                                     value={getStyleValue('fill') as string || '#000000'}
-                                    onChange={e => updateProp('fill', e.target.value)}
-                                    onInput={e => updateProp('fill', (e.target as HTMLInputElement).value)}
+                                    onChange={e => debugUpdateProp('fill', e.target.value, 'onChange')}
+                                    onInput={e => debugUpdateProp('fill', (e.target as HTMLInputElement).value, 'onInput')}
                                     style={{ flex: 1, height: 28, padding: 0, border: 'none', background: 'none' }}
                                 />
                             </div>
@@ -516,8 +522,8 @@ const PropertyPanel: React.FC = () => {
                                 <input
                                     type="color"
                                     value={getStyleValue('textBackgroundColor') as string || '#ffffff'}
-                                    onChange={e => updateProp('textBackgroundColor', e.target.value)}
-                                    onInput={e => updateProp('textBackgroundColor', (e.target as HTMLInputElement).value)}
+                                    onChange={e => debugUpdateProp('textBackgroundColor', e.target.value, 'onChange')}
+                                    onInput={e => debugUpdateProp('textBackgroundColor', (e.target as HTMLInputElement).value, 'onInput')}
                                     style={{ flex: 1, height: 28, padding: 0, border: 'none', background: 'none' }}
                                 />
                                 <button
