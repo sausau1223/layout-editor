@@ -505,6 +505,7 @@ const PropertyPanel: React.FC = () => {
                                     type="color"
                                     value={getStyleValue('fill') as string || '#000000'}
                                     onChange={e => updateProp('fill', e.target.value)}
+                                    onInput={e => updateProp('fill', (e.target as HTMLInputElement).value)}
                                     style={{ flex: 1, height: 28, padding: 0, border: 'none', background: 'none' }}
                                 />
                             </div>
@@ -516,6 +517,7 @@ const PropertyPanel: React.FC = () => {
                                     type="color"
                                     value={getStyleValue('textBackgroundColor') as string || '#ffffff'}
                                     onChange={e => updateProp('textBackgroundColor', e.target.value)}
+                                    onInput={e => updateProp('textBackgroundColor', (e.target as HTMLInputElement).value)}
                                     style={{ flex: 1, height: 28, padding: 0, border: 'none', background: 'none' }}
                                 />
                                 <button
