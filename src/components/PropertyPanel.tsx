@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { Trash2, MoveUp, MoveDown, ChevronsUp, ChevronsDown, Lock, Unlock, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import * as fabric from 'fabric';
@@ -15,15 +15,25 @@ const PropertyPanel: React.FC = () => {
             canvas.on('selection:changed', handleModified);
 
             // For text inline formatting selection updates
+            const handleSelectionChanged = () => {
+                if (activeObject && (activeObject as any).isEditing) {
+                    lastSelectionRef.current = {
+                        start: (activeObject as any).selectionStart,
+                        end: (activeObject as any).selectionEnd
+                    };
+                }
+                handleModified();
+            };
+
             if (activeObject && (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox')) {
-                activeObject.on('selection:changed', handleModified);
+                activeObject.on('selection:changed', handleSelectionChanged);
             }
 
             return () => {
                 canvas.off('object:modified', handleModified);
                 canvas.off('selection:changed', handleModified);
                 if (activeObject) {
-                    activeObject.off('selection:changed', handleModified);
+                    activeObject.off('selection:changed', handleSelectionChanged);
                 }
             };
         }
@@ -42,6 +52,8 @@ const PropertyPanel: React.FC = () => {
     const isText = activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox';
     const isImage = activeObject.type === 'image';
 
+    const lastSelectionRef = useRef<{ start: number, end: number } | null>(null);
+
     const updateProp = (key: string, value: any) => {
         if (!canvas || !activeObject) return;
 
@@ -50,14 +62,33 @@ const PropertyPanel: React.FC = () => {
 
         // During a click on the property panel, isEditing might briefly become false,
         // so we check if there's a valid selection range instead of strictly checking isEditing.
+        let sStart = objAsText.selectionStart;
+        let sEnd = objAsText.selectionEnd;
+
+        // Retain selection if the user clicked an input and lost focus on the canvas
+        if ((sStart === undefined || sStart === sEnd) && lastSelectionRef.current) {
+            sStart = lastSelectionRef.current.start;
+            sEnd = lastSelectionRef.current.end;
+        }
+
         if (
             (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
-            objAsText.selectionStart !== undefined &&
-            objAsText.selectionEnd !== undefined &&
-            objAsText.selectionStart !== objAsText.selectionEnd
+            sStart !== undefined &&
+            sEnd !== undefined &&
+            sStart !== sEnd
         ) {
-            // Apply style only to the selected portion
+            // Apply style only to the selected portion by temporarily overriding the hidden selection state
+            const origStart = objAsText.selectionStart;
+            const origEnd = objAsText.selectionEnd;
+            objAsText.selectionStart = sStart;
+            objAsText.selectionEnd = sEnd;
+
             objAsText.setSelectionStyles({ [key]: value });
+
+            // Restore actual selection state to avoid corrupting internal behavior
+            objAsText.selectionStart = origStart;
+            objAsText.selectionEnd = origEnd;
+
             activeObject.setCoords();
             canvas.requestRenderAll();
             canvas.fire('object:modified', { target: activeObject });
@@ -79,13 +110,19 @@ const PropertyPanel: React.FC = () => {
         if (!activeObject) return undefined;
         const objAsText = activeObject as any;
 
+        let sStart = objAsText.selectionStart;
+        if (sStart === undefined || sStart === objAsText.selectionEnd) {
+            if (lastSelectionRef.current) {
+                sStart = lastSelectionRef.current.start;
+            }
+        }
+
         if (
             (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
-            objAsText.isEditing &&
-            objAsText.selectionStart !== null
+            sStart !== undefined && sStart !== null
         ) {
             // Get the style of the first selected character or current cursor position
-            const style = objAsText.getSelectionStyles(objAsText.selectionStart, objAsText.selectionStart + 1) || [];
+            const style = objAsText.getSelectionStyles(sStart, sStart + 1) || [];
             if (style.length > 0 && style[0][key] !== undefined) {
                 return style[0][key];
             }
