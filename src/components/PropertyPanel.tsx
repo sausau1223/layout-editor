@@ -116,31 +116,38 @@ const PropertyPanel: React.FC = () => {
 
     const getStyleValue = (key: string) => {
         if (!activeObject) return undefined;
-        const objAsText = activeObject as any;
 
-        let sStart = objAsText.selectionStart;
-        if (sStart === undefined || sStart === objAsText.selectionEnd) {
-            if (lastSelectionRef.current) {
-                sStart = lastSelectionRef.current.start;
+        try {
+            const objAsText = activeObject as any;
+
+            let sStart = objAsText.selectionStart;
+            if (sStart === undefined || sStart === objAsText.selectionEnd) {
+                if (lastSelectionRef.current) {
+                    sStart = lastSelectionRef.current.start;
+                }
             }
-        }
 
-        const textLen = objAsText.text ? objAsText.text.length : 0;
+            const textLen = objAsText.text ? objAsText.text.length : 0;
 
-        if (
-            (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
-            sStart !== undefined && sStart !== null &&
-            sStart < textLen // Prevent out of bounds crash during render
-        ) {
-            // Get the style of the first selected character or current cursor position
-            const style = objAsText.getSelectionStyles(sStart, sStart + 1) || [];
-            if (style.length > 0 && style[0][key] !== undefined) {
-                return style[0][key];
+            if (
+                (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
+                sStart !== undefined && sStart !== null &&
+                sStart >= 0 && sStart < textLen // strict bounds check
+            ) {
+                // Get the style of the first selected character or current cursor position
+                const style = objAsText.getSelectionStyles ? objAsText.getSelectionStyles(sStart, sStart + 1) : [];
+                if (style && style.length > 0 && style[0] && style[0][key] !== undefined) {
+                    return style[0][key];
+                }
             }
-        }
 
-        // Fallback to object property
-        return activeObject.get(key);
+            // Fallback to object property
+            return activeObject.get ? activeObject.get(key) : (activeObject as any)[key];
+        } catch (e) {
+            console.warn("Recovered from style fetching error:", e);
+            // Supreme fallback
+            return activeObject.get ? activeObject.get(key) : undefined;
+        }
     };
 
     const deleteObject = () => {
