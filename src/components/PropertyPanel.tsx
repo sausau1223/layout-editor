@@ -54,6 +54,11 @@ const PropertyPanel: React.FC = () => {
 
     const lastSelectionRef = useRef<{ start: number, end: number } | null>(null);
 
+    // Reset selection memory when changing objects to prevent out-of-bounds crash on new or shorter objects
+    useEffect(() => {
+        lastSelectionRef.current = null;
+    }, [activeObject]);
+
     const updateProp = (key: string, value: any) => {
         if (!canvas || !activeObject) return;
 
@@ -71,11 +76,14 @@ const PropertyPanel: React.FC = () => {
             sEnd = lastSelectionRef.current.end;
         }
 
+        const textLen = objAsText.text ? objAsText.text.length : 0;
+
         if (
             (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
             sStart !== undefined &&
             sEnd !== undefined &&
-            sStart !== sEnd
+            sStart !== sEnd &&
+            sStart < textLen // Prevent out of bounds crash
         ) {
             // Apply style only to the selected portion by temporarily overriding the hidden selection state
             const origStart = objAsText.selectionStart;
@@ -117,9 +125,12 @@ const PropertyPanel: React.FC = () => {
             }
         }
 
+        const textLen = objAsText.text ? objAsText.text.length : 0;
+
         if (
             (activeObject.type === 'i-text' || activeObject.type === 'text' || activeObject.type === 'textbox') &&
-            sStart !== undefined && sStart !== null
+            sStart !== undefined && sStart !== null &&
+            sStart < textLen // Prevent out of bounds crash during render
         ) {
             // Get the style of the first selected character or current cursor position
             const style = objAsText.getSelectionStyles(sStart, sStart + 1) || [];
