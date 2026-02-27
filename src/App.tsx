@@ -9,9 +9,9 @@ function App() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
       <Toolbar />
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="main-layout" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+        <div className="canvas-workspace" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
           <PagePanel />
           <CanvasArea />
         </div>
@@ -28,7 +28,7 @@ function App() {
           fontSize: 12,
           color: 'var(--text-secondary)'
         }}
-        className="glass-panel"
+        className="glass-panel status-bar"
       >
         <span>Status: Ready</span>
       </div>

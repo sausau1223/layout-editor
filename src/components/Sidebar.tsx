@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
 
     return (
         <div
-            className="glass-panel"
+            className="glass-panel responsive-sidebar"
             style={{
                 width: 64,
                 display: 'flex',

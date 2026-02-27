@@ -79,7 +79,7 @@ const Toolbar: React.FC = () => {
 
     return (
         <div
-            className="glass-panel"
+            className="glass-panel toolbar-container"
             style={{
                 height: 64,
                 display: 'flex',
@@ -90,7 +90,10 @@ const Toolbar: React.FC = () => {
             }}
         >
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <h2 style={{ marginRight: 24, fontSize: 18, fontWeight: 600 }}>Steven Layout Editor<span style={{ color: 'var(--accent-color)', fontSize: 12, marginLeft: 8 }}>v1.0</span></h2>
+                <h2 className="toolbar-title" style={{ marginRight: 24, fontSize: 18, fontWeight: 600 }}>
+                    <span className="mobile-hidden">Steven </span>Layout Editor
+                    <span className="mobile-hidden" style={{ color: 'var(--accent-color)', fontSize: 12, marginLeft: 8 }}>v1.0</span>
+                </h2>
 
                 <button
                     title="Undo"
@@ -120,19 +123,15 @@ const Toolbar: React.FC = () => {
                 </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
                     className="primary"
                     onClick={exportPDF}
                     disabled={isExporting}
-                    style={{ opacity: isExporting ? 0.7 : 1, cursor: isExporting ? 'wait' : 'pointer' }}
+                    style={{ opacity: isExporting ? 0.7 : 1 }}
                 >
-                    {isExporting ? (
-                        <Loader2 size={16} className="spin" style={{ marginRight: 8 }} />
-                    ) : (
-                        <Download size={16} style={{ marginRight: 8 }} />
-                    )}
-                    {isExporting ? 'Exporting...' : 'Export PDF'}
+                    {isExporting ? <Loader2 size={16} className="animate-spin" style={{ marginRight: 8 }} /> : <Download size={16} style={{ marginRight: 8 }} />}
+                    <span className="mobile-hidden">{isExporting ? 'Exporting...' : 'Export PDF'}</span>
                 </button>
             </div>
         </div>

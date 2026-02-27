@@ -50,7 +50,7 @@ const PropertyPanel: React.FC = () => {
     // -- EARLY RETURN --
     if (!activeObject) {
         return (
-            <div className="glass-panel" style={{ width: 280, padding: 16, borderLeft: '1px solid var(--panel-border)' }}>
+            <div className="glass-panel responsive-property-panel" style={{ width: 280, padding: 16, borderLeft: '1px solid var(--panel-border)' }}>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 13, textAlign: 'center', marginTop: 40 }}>
                     No element selected
                 </p>
@@ -283,7 +283,7 @@ const PropertyPanel: React.FC = () => {
 
     return (
         <div
-            className="glass-panel"
+            className="glass-panel responsive-property-panel mobile-open"
             style={{
                 width: 280,
                 display: 'flex',
@@ -299,9 +299,19 @@ const PropertyPanel: React.FC = () => {
                 }
             }}
         >
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, borderBottom: '1px solid var(--panel-border)', paddingBottom: 8 }}>
-                Properties
-            </h3>
+            {/* Mobile swipe indicator handle */}
+            <div className="mobile-handle" style={{ width: 32, height: 4, background: 'var(--panel-border)', borderRadius: 2, margin: '0 auto 16px auto', display: 'none' }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: '1px solid var(--panel-border)', paddingBottom: 8 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 600 }}>Properties</h3>
+                <button
+                    className="mobile-close-btn"
+                    onClick={() => { if (canvas) { canvas.discardActiveObject(); canvas.requestRenderAll(); setUpdater(prev => prev + 1); } }}
+                    style={{ padding: '4px 12px', background: 'var(--panel-border)', fontSize: 12, display: 'none' }}
+                >
+                    Close
+                </button>
+            </div>
 
             <div className="prop-group">
                 <label>Geometry</label>

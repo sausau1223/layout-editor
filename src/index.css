@@ -151,3 +151,96 @@ textarea.fabric-hidden-textarea {
   z-index: -999 !important;
   pointer-events: none !important;
 }
+
+/* =========================================
+   Responsive Web Design (RWD) Styles
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* Hide specific text/elements on mobile to save space */
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  /* Toolbar optimization */
+  .toolbar-container {
+    padding: 0 8px !important;
+  }
+
+  .toolbar-title {
+    font-size: 16px !important;
+    margin-right: 8px !important;
+  }
+
+  /* Main area needs to allow scrolling if property panel expands */
+  .main-layout {
+    flex-direction: column !important;
+  }
+
+  /* Sidebar becomes a Bottom Navigation Bar */
+  .responsive-sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    height: 64px;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    border-right: none !important;
+    border-top: 1px solid var(--panel-border);
+    z-index: 100;
+  }
+
+  .responsive-sidebar button {
+    width: auto !important;
+    flex: 1;
+    max-width: 80px;
+  }
+
+  /* Property Panel becomes a Bottom Sheet */
+  .responsive-property-panel {
+    position: fixed;
+    bottom: 64px;
+    /* Just above the Bottom Bar */
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    max-height: 50vh;
+    border-left: none !important;
+    border-top: 1px solid var(--panel-border);
+    border-radius: 16px 16px 0 0;
+    z-index: 90;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+    outline: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Animation for sliding up */
+    transform: translateY(120%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .responsive-property-panel.mobile-open {
+    transform: translateY(0);
+  }
+
+  /* Show mobile specifically buttons */
+  .mobile-handle {
+    display: block !important;
+  }
+
+  .mobile-close-btn {
+    display: block !important;
+  }
+
+  /* Add some padding to bottom of canvas area so bottom bar doesn't overlap it */
+  .canvas-workspace {
+    padding-bottom: 80px !important;
+  }
+
+  /* Hide the status bar on mobile */
+  .status-bar {
+    display: none !important;
+  }
+}
